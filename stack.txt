@@ -1,0 +1,137 @@
+
+class MyStack {
+
+    class Node {
+        String data;
+        Node next;
+
+        Node(String data) {
+            this.data = data;
+            this.next = null;
+        }
+    }
+
+    Node top;
+
+    MyStack() {
+        this.top = null;
+    }
+
+    void push(String data) {
+        Node newNode = new Node(data);
+        newNode.next = top;
+        top = newNode;
+    }
+
+    String pop() {
+        String data = top.data;
+        top = top.next;
+        return data;
+    }
+
+    boolean isEmpty() {
+        return top == null;
+    }
+
+    void clear() {
+        top = null;
+    }
+}
+
+class Stack {
+
+    String currentState;
+    MyStack undoStack;
+    MyStack redoStack;
+
+    Stack() {
+        this.currentState = "";
+        this.undoStack = new MyStack();
+        this.redoStack = new MyStack();
+    }
+
+    void makeChange(String newState) {
+        undoStack.push(this.currentState);
+        this.currentState = newState;
+        redoStack.clear();
+    }
+
+    void undoAction() {
+        if (undoStack.isEmpty()) {
+            return;
+        }
+        redoStack.push(this.currentState);
+        this.currentState = undoStack.pop();
+    }
+
+    void redoAction() {
+        if (redoStack.isEmpty()) {
+            return;
+        }
+        undoStack.push(this.currentState);
+        this.currentState = redoStack.pop();
+    }
+
+    void displayDocumentState() {
+        System.out.println("   Current Document: [" + this.currentState + "]");
+    }
+
+    static void main(String[] args) {
+        TextEditor editor = new TextEditor();
+        System.out.println("Text Editor initialized.");
+        editor.displayDocumentState();
+        System.out.println("---------------------------------");
+
+        System.out.println("Making change: Hello");
+        editor.makeChange("Hello");
+        editor.displayDocumentState();
+        
+        System.out.println("Making change: Hello World");
+        editor.makeChange("Hello World");
+        editor.displayDocumentState();
+        
+        System.out.println("Making change: Hello World!");
+        editor.makeChange("Hello World!");
+        editor.displayDocumentState();
+        System.out.println("---------------------------------");
+
+        System.out.println("Undoing action...");
+        editor.undoAction();
+        editor.displayDocumentState();
+        
+        System.out.println("Undoing action...");
+        editor.undoAction();
+        editor.displayDocumentState();
+        System.out.println("---------------------------------");
+
+        System.out.println("Redoing action...");
+        editor.redoAction();
+        editor.displayDocumentState();
+        System.out.println("---------------------------------");
+
+        System.out.println("Making change: Goodbye");
+        editor.makeChange("Goodbye");
+        editor.displayDocumentState();
+        System.out.println("---------------------------------");
+
+        System.out.println("Trying to redo (should fail silently)...");
+        editor.redoAction();
+        editor.displayDocumentState();
+        System.out.println("---------------------------------");
+
+        System.out.println("Undoing all changes...");
+        editor.undoAction();
+        editor.displayDocumentState();
+        
+        editor.undoAction();
+        editor.displayDocumentState();
+        
+        editor.undoAction();
+        editor.displayDocumentState();
+        
+        System.out.println("Trying to undo (should fail silently)...");
+        editor.undoAction();
+        editor.displayDocumentState();
+        System.out.println("---------------------------------");
+    }
+}
