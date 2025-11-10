@@ -1,0 +1,203 @@
+
+/**
+ * Node class represents a single node in the BST.
+ */
+class Node {
+    int key;
+    Node left;
+    Node right;
+
+    Node(int item) {
+        key = item;
+        left = null;
+        right = null;
+    }
+}
+
+/**
+ * BST class implements the Binary Search Tree.
+ */
+class BST {
+    Node root;
+
+    BST() {
+        root = null;
+    }
+
+    // --- 1. Insertion ---
+
+    /**
+     * Public-facing insert method.
+     */
+    void insert(int key) {
+        root = insertRec(root, key);
+    }
+
+    /**
+     * Recursive helper function to insert a new key.
+     */
+    Node insertRec(Node root, int key) {
+        // If the tree/subtree is empty, create a new node
+        if (root == null) {
+            root = new Node(key);
+            return root;
+        }
+
+        // Recur down the tree
+        if (key < root.key) {
+            root.left = insertRec(root.left, key);
+        } else if (key > root.key) {
+            root.right = insertRec(root.right, key);
+        }
+
+        // If key is equal, do nothing (no duplicates allowed)
+        return root;
+    }
+
+    // --- 2. Display (In-order Traversal) ---
+
+    /**
+     * Public-facing display method.
+     */
+    void display() {
+        System.out.print("In-order traversal: ");
+        inorderRec(root);
+        System.out.println(); // For a new line
+    }
+
+    /**
+     * Recursive helper for in-order (Left, Root, Right) traversal.
+     */
+    void inorderRec(Node root) {
+        if (root != null) {
+            inorderRec(root.left);
+            System.out.print(root.key + " ");
+            inorderRec(root.right);
+        }
+    }
+
+    // --- 3. Search ---
+
+    /**
+     * Public-facing search method.
+     */
+    void search(int key) {
+        Node result = searchRec(root, key);
+        if (result != null) {
+            System.out.println("Key " + key + " found.");
+        } else {
+            System.out.println("Key " + key + " not found.");
+        }
+    }
+
+    /**
+     * Recursive helper to search for a key.
+     */
+    Node searchRec(Node root, int key) {
+        // Base Cases: root is null or key is present at root
+        if (root == null || root.key == key) {
+            return root;
+        }
+
+        // Key is greater than root's key
+        if (key > root.key) {
+            return searchRec(root.right, key);
+        }
+
+        // Key is smaller than root's key
+        return searchRec(root.left, key);
+    }
+
+    // --- 4. Deletion ---
+
+    /**
+     * Public-facing delete method.
+     */
+    void delete(int key) {
+        root = deleteRec(root, key);
+    }
+
+    /**
+     * Recursive helper to delete a key.
+     */
+    Node deleteRec(Node root, int key) {
+        if (root == null) {
+            return root; // Key not found
+        }
+
+        // Recur down the tree
+        if (key < root.key) {
+            root.left = deleteRec(root.left, key);
+        } else if (key > root.key) {
+            root.right = deleteRec(root.right, key);
+        } else {
+            // Node found! This is the node to be deleted.
+
+            // Case 1: Node with only one child or no child
+            if (root.left == null) {
+                return root.right;
+            } else if (root.right == null) {
+                return root.left;
+            }
+
+            // Case 2: Node with two children
+            // Find the in-order successor (smallest node in the right subtree)
+            root.key = findMinValue(root.right);
+
+            // Delete the in-order successor from the right subtree
+            root.right = deleteRec(root.right, root.key);
+        }
+        return root;
+    }
+
+    /**
+     * Helper function to find the in-order successor (smallest value).
+     */
+    int findMinValue(Node root) {
+        int minValue = root.key;
+        while (root.left != null) {
+            minValue = root.left.key;
+            root = root.left;
+        }
+        return minValue;
+    }
+
+    // --- Main Method for Demonstration ---
+    static void main(String[] args) {
+        BST tree = new BST();
+
+        System.out.println("Inserting values: 50, 30, 70, 20, 40, 60, 80");
+        tree.insert(50);
+        tree.insert(30);
+        tree.insert(70);
+        tree.insert(20);
+        tree.insert(40);
+        tree.insert(60);
+        tree.insert(80);
+
+        tree.display();
+        System.out.println("--------------------");
+
+        System.out.println("Searching for 40:");
+        tree.search(40); // Found
+        System.out.println("Searching for 90:");
+        tree.search(90); // Not found
+        System.out.println("--------------------");
+
+        System.out.println("Deleting 20 (leaf node)...");
+        tree.delete(20);
+        tree.display(); 
+        
+        System.out.println("Deleting 30 (node with one child)...");
+        tree.delete(30);
+        tree.display(); 
+
+        System.out.println("Deleting 50 (node with two children)...");
+        tree.delete(50);
+        tree.display(); 
+        
+        System.out.println("--------------------");
+        System.out.println("Searching for deleted key 50:");
+        tree.search(50); // Not found
+    }
+}
