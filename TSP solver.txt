@@ -1,0 +1,82 @@
+
+class TSPSolver {
+
+    int n;
+    int VISITED_ALL;
+    int[][] graph;
+    Integer[][] memo;
+
+    /**
+     * Constructor to set up the solver.
+     */
+    TSPSolver(int[][] graph) {
+        this.graph = graph;
+        this.n = graph.length;
+        this.VISITED_ALL = (1 << n) - 1; 
+        this.memo = new Integer[1 << n][n]; 
+    }
+
+    /**
+     * The recursive visit function to solve the problem.
+     * @param mask An integer bitmask representing visited cities.
+     * @param pos  The current city (position).
+     * @return The minimum cost for the rest of the tour.
+     */
+    int visit(int mask, int pos) {
+        
+        if (mask == VISITED_ALL) {
+            return graph[pos][0];
+        }
+
+        if (memo[mask][pos] != null) {
+            return memo[mask][pos];
+        }
+
+        int ans = Integer.MAX_VALUE;
+
+        for (int nxt = 0; nxt < n; nxt++) {
+            
+            if ((mask & (1 << nxt)) == 0) {
+                
+                int cost_to_go = visit(mask | (1 << nxt), nxt);
+
+                if (cost_to_go != Integer.MAX_VALUE) {
+                    
+                    int new_cost = graph[pos][nxt] + cost_to_go;
+                    
+                    if (new_cost < ans) {
+                        ans = new_cost;
+                    }
+                }
+            }
+        }
+
+        memo[mask][pos] = ans;
+        return ans;
+    }
+
+    /**
+     * Public method to start the calculation.
+     */
+    int solve() {
+        return visit(1, 0);
+    }
+
+    /**
+     * Main method to run the example.
+     */
+    static void main(String[] args) {
+        int[][] graph = {
+            {0, 10, 15, 20},
+            {10, 0, 35, 25},
+            {15, 35, 0, 30},
+            {20, 25, 30, 0}
+        };
+
+        TSPSolver solver = new TSPSolver(graph);
+        
+        int minTime = solver.solve();
+
+        System.out.println("Minimum time to deliver pizzas to all locations: " + minTime);
+    }
+}
