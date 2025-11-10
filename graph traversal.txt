@@ -1,0 +1,196 @@
+
+import java.util.Scanner; // Used for input, as 'input()' is in Python
+
+/**
+ * A custom Queue implementation using a Linked List.
+ * This replaces 'collections.deque'
+ */
+class MyQueue {
+
+    // Inner class to represent a node in the linked list
+    class Node {
+        int index; // We will store the location index (0, 1, 2, 3)
+        Node next;
+
+        Node(int index) {
+            this.index = index;
+            this.next = null;
+        }
+    }
+
+    Node head;
+    Node tail;
+
+    MyQueue() {
+        this.head = null;
+        this.tail = null;
+    }
+
+    /**
+     * Adds a new index to the end of the queue.
+     */
+    void add(int index) {
+        Node newNode = new Node(index);
+        if (tail == null) {
+            // Queue is empty
+            head = newNode;
+            tail = newNode;
+        } else {
+            // Add to the end
+            tail.next = newNode;
+            tail = newNode;
+        }
+    }
+
+    /**
+     * Removes and returns the index from the front of the queue.
+     */
+    int remove() {
+        int index = head.index;
+        head = head.next;
+        if (head == null) {
+            // Queue is now empty
+            tail = null;
+        }
+        return index;
+    }
+
+    /**
+     * Checks if the queue is empty.
+     */
+    boolean isEmpty() {
+        return head == null;
+    }
+}
+
+/**
+ * Main class to hold the graph data, traversal methods, and menu
+ */
+class GraphTraversal {
+
+    // --- Graph Data ---
+    String[] locations = {"A", "B", "C", "D"};
+    
+    int[][] adj_matrix = {
+        {0, 1, 1, 0},
+        {1, 0, 0, 1},
+        {1, 0, 0, 1},
+        {0, 1, 1, 0}
+    };
+
+    /**
+     * Helper to convert location name to index.
+     * Replaces 'location_index' dictionary.
+     */
+    int locationToIndex(String loc) {
+        switch (loc) {
+            case "A": return 0;
+            case "B": return 1;
+            case "C": return 2;
+            case "D": return 3;
+            default: return -1;
+        }
+    }
+
+    /**
+     * Helper to convert index back to location name.
+     */
+    String indexToLocation(int index) {
+        return locations[index];
+    }
+    
+    // --- DFS Traversal (using Adjacency Matrix) ---
+
+    /**
+     * Recursive helper for DFS.
+     */
+    void dfs(int node, boolean[] visited) {
+        visited[node] = true;
+        System.out.print(indexToLocation(node) + " ");
+
+        for (int neighbor = 0; neighbor < locations.length; neighbor++) {
+            if (adj_matrix[node][neighbor] == 1 && !visited[neighbor]) {
+                dfs(neighbor, visited);
+            }
+        }
+    }
+
+    /**
+     * Initiates the DFS traversal.
+     */
+    void dfs_matrix(String start) {
+        boolean[] visited = new boolean[locations.length];
+        int startIndex = locationToIndex(start);
+        System.out.print("DFS Traversal (using adjacency matrix): ");
+        dfs(startIndex, visited);
+        System.out.println(); // For new line
+    }
+
+    // --- BFS Traversal (using Adjacency Matrix) ---
+
+    /**
+     * Initiates the BFS traversal.
+     * Replaces 'bfs_list' and adapts it to use the matrix.
+     */
+    void bfs_matrix(String start) {
+        boolean[] visited = new boolean[locations.length];
+        MyQueue queue = new MyQueue();
+        
+        int startIndex = locationToIndex(start);
+
+        visited[startIndex] = true;
+        queue.add(startIndex);
+
+        System.out.print("BFS Traversal (using adjacency matrix): ");
+        
+        while (!queue.isEmpty()) {
+            int node = queue.remove();
+            System.out.print(indexToLocation(node) + " ");
+
+            for (int neighbor = 0; neighbor < locations.length; neighbor++) {
+                if (adj_matrix[node][neighbor] == 1 && !visited[neighbor]) {
+                    visited[neighbor] = true;
+                    queue.add(neighbor);
+                }
+            }
+        }
+        System.out.println(); // For new line
+    }
+
+    // --- Menu Logic ---
+
+    void menu() {
+        System.out.println("\n- Menu -");
+        System.out.println("1. DFS");
+        System.out.println("2. BFS");
+        System.out.println("3. Exit");
+    }
+
+    /**
+     * The main entry point for the program.
+     */
+    static void main(String[] args) {
+        GraphTraversal graph = new GraphTraversal();
+        Scanner sc = new Scanner(System.in);
+
+        while (true) {
+            graph.menu();
+            System.out.print("Enter your choice: ");
+            String choice = sc.next();
+
+            if (choice.equals("1")) {
+                String start_location = "A";
+                graph.dfs_matrix(start_location);
+            } else if (choice.equals("2")) {
+                String start_location = "A";
+                graph.bfs_matrix(start_location);
+            } else if (choice.equals("3")) {
+                System.out.println("Exiting...");
+                sc.close();
+                break;
+            } else {
+                System.out.println("Invalid choice!");
+            }
+        }
+    }
+}
